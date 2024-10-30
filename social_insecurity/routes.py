@@ -118,30 +118,34 @@ def comments(username: str, post_id: int):
     get_user = f"""
         SELECT *
         FROM Users
-        WHERE username = '{username}';
+        WHERE username = ?;
         """
-    user = sqlite.query(get_user, one=True)
+    user = sqlite.query(get_user, (username,), one=True)
 
     if comments_form.is_submitted():
         insert_comment = f"""
             INSERT INTO Comments (p_id, u_id, comment, creation_time)
-            VALUES ({post_id}, {user["id"]}, '{comments_form.comment.data}', CURRENT_TIMESTAMP);
+            VALUES (?,?,?, CURRENT_TIMESTAMP);
             """
-        sqlite.query(insert_comment)
+        sqlite.query(insert_comment, (
+            post_id,
+            user["id"],
+            comments_form.comment.data
+        ))
 
     get_post = f"""
         SELECT *
         FROM Posts AS p JOIN Users AS u ON p.u_id = u.id
-        WHERE p.id = {post_id};
+        WHERE p.id = ?;
         """
     get_comments = f"""
         SELECT DISTINCT *
         FROM Comments AS c JOIN Users AS u ON c.u_id = u.id
-        WHERE c.p_id={post_id}
+        WHERE c.p_id= ?
         ORDER BY c.creation_time DESC;
         """
-    post = sqlite.query(get_post, one=True)
-    comments = sqlite.query(get_comments)
+    post = sqlite.query(get_post, (post_id,), one=True)
+    comments = sqlite.query(get_comments, (post_id,))
     return render_template(
         "comments.html.j2", title="Comments", username=username, form=comments_form, post=post, comments=comments
     )
