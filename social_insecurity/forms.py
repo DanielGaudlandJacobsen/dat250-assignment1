@@ -30,6 +30,13 @@ from wtforms import (
     TextAreaField,
 )
 
+from wtforms.validators import (
+    DataRequired,
+    Length,
+    Email,
+    EqualTo,
+    ValidationError,
+)
 # Defines all forms in the application, these will be instantiated by the template,
 # and the routes.py will read the values of the fields
 
@@ -41,8 +48,8 @@ from wtforms import (
 class LoginForm(FlaskForm):
     """Provides the login form for the application."""
 
-    username = StringField(label="Username", render_kw={"placeholder": "Username"})
-    password = PasswordField(label="Password", render_kw={"placeholder": "Password"})
+    username = StringField(label="Username", render_kw={"placeholder": "Username"},validators=[DataRequired(), Length(min=3, max=25)])
+    password = PasswordField(label="Password", render_kw={"placeholder": "Password"},validators=[DataRequired(), Length(min=6, max=100)])
     remember_me = BooleanField(
         label="Remember me"
     )  # TODO: It would be nice to have this feature implemented, probably by using cookies
@@ -52,13 +59,17 @@ class LoginForm(FlaskForm):
 class RegisterForm(FlaskForm):
     """Provides the registration form for the application."""
 
-    first_name = StringField(label="First Name", render_kw={"placeholder": "First Name"})
-    last_name = StringField(label="Last Name", render_kw={"placeholder": "Last Name"})
-    username = StringField(label="Username", render_kw={"placeholder": "Username"})
-    password = PasswordField(label="Password", render_kw={"placeholder": "Password"})
-    confirm_password = PasswordField(label="Confirm Password", render_kw={"placeholder": "Confirm Password"})
+    first_name = StringField(label="First Name", render_kw={"placeholder": "First Name"},validators=[DataRequired(), Length(min=3, max=25)])
+    last_name = StringField(label="Last Name", render_kw={"placeholder": "Last Name"},validators=[DataRequired(), Length(min=3, max=25)])
+    username = StringField(label="Username", render_kw={"placeholder": "Username"},validators=[DataRequired(), Length(min=3, max=25)])
+    password = PasswordField(label="Password", render_kw={"placeholder": "Password"},validators=[DataRequired(), Length(min=6, max=100)])
+    confirm_password = PasswordField(label="Confirm Password", render_kw={"placeholder": "Confirm Password"},validators=[DataRequired(), EqualTo('password', message='Passwords must match')])
     submit = SubmitField(label="Sign Up")
-
+    
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError('Username already exists. Please choose a different one.')
 
 class IndexForm(FlaskForm):
     """Provides the composite form for the index page."""
@@ -70,7 +81,7 @@ class IndexForm(FlaskForm):
 class PostForm(FlaskForm):
     """Provides the post form for the application."""
 
-    content = TextAreaField(label="New Post", render_kw={"placeholder": "What are you thinking about?"})
+    content = TextAreaField(label="New Post", render_kw={"placeholder": "What are you thinking about?"},validators=[DataRequired(), Length(max=500)])
     image = FileField(label="Image")
     submit = SubmitField(label="Post")
 
@@ -78,14 +89,14 @@ class PostForm(FlaskForm):
 class CommentsForm(FlaskForm):
     """Provides the comment form for the application."""
 
-    comment = TextAreaField(label="New Comment", render_kw={"placeholder": "What do you have to say?"})
+    comment = TextAreaField(label="New Comment", render_kw={"placeholder": "What do you have to say?"},validators=[DataRequired(), Length(max=300)])
     submit = SubmitField(label="Comment")
 
 
 class FriendsForm(FlaskForm):
     """Provides the friend form for the application."""
 
-    username = StringField(label="Friend's username", render_kw={"placeholder": "Username"})
+    username = StringField(label="Friend's username", render_kw={"placeholder": "Username"},validators=[DataRequired(), Length(min=3, max=25)])
     submit = SubmitField(label="Add Friend")
 
 

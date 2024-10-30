@@ -249,7 +249,33 @@ def profile(username: str):
     return render_template("profile.html.j2", title="Profile", username=username, user=user, form=profile_form)
 
 
-@app.route("/uploads/<string:filename>")
-def uploads(filename):
-    """Provides an endpoint for serving uploaded files."""
-    return send_from_directory(Path(app.instance_path) / app.config["UPLOADS_FOLDER_PATH"], filename)
+#@app.route("/uploads/<string:filename>")
+#def uploads(filename):
+#    """Provides an endpoint for serving uploaded files."""
+#    return send_from_directory(Path(app.instance_path) / app.config["UPLOADS_FOLDER_PATH"], filename)
+
+
+
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        # Sjekk om 'file' finnes i request
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # Hvis brukeren ikke velger fil
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOADS_FOLDER_PATH'], filename)
+            file.save(filepath)
+            flash('File successfully uploaded')
+            return redirect(url_for('upload_file'))
+        else:
+            flash('Allowed file types are png, jpg, jpeg, gif, bmp, tiff')
+            return redirect(request.url)
+    return
