@@ -34,7 +34,7 @@ def index():
             FROM Users
             WHERE username = ?;
             """
-        user = sqlite.query(get_user, params=(login_form.username.data,), one=True)
+        user = sqlite.query(get_user, (login_form.username.data,), one=True)
 
         if user is None:
             flash("Sorry, this user does not exist!", category="warning")
@@ -72,9 +72,9 @@ def stream(username: str):
     get_user = f"""
         SELECT *
         FROM Users
-        WHERE username = '{username}';
+        WHERE username = ?;
         """
-    user = sqlite.query(get_user, one=True)
+    user = sqlite.query(get_user, (username,), one=True)
 
     if post_form.is_submitted():
         if post_form.image.data:
@@ -83,18 +83,26 @@ def stream(username: str):
 
         insert_post = f"""
             INSERT INTO Posts (u_id, content, image, creation_time)
-            VALUES ({user["id"]}, '{post_form.content.data}', '{post_form.image.data.filename}', CURRENT_TIMESTAMP);
+            VALUES (?,?,?, CURRENT_TIMESTAMP);
             """
-        sqlite.query(insert_post)
+        sqlite.query(insert_post, (
+            user["id"],
+            post_form.content.data,
+            post_form.image.data.filename
+        ))
         return redirect(url_for("stream", username=username))
 
     get_posts = f"""
          SELECT p.*, u.*, (SELECT COUNT(*) FROM Comments WHERE p_id = p.id) AS cc
          FROM Posts AS p JOIN Users AS u ON u.id = p.u_id
-         WHERE p.u_id IN (SELECT u_id FROM Friends WHERE f_id = {user["id"]}) OR p.u_id IN (SELECT f_id FROM Friends WHERE u_id = {user["id"]}) OR p.u_id = {user["id"]}
+         WHERE p.u_id IN (SELECT u_id FROM Friends WHERE f_id = ?) OR p.u_id IN (SELECT f_id FROM Friends WHERE u_id = ?) OR p.u_id = ?
          ORDER BY p.creation_time DESC;
         """
-    posts = sqlite.query(get_posts)
+    posts = sqlite.query(get_posts, (
+        user["id"],
+        user["id"],
+        user["id"]
+    ))
     return render_template("stream.html.j2", title="Stream", username=username, form=post_form, posts=posts)
 
 
