@@ -222,19 +222,27 @@ def profile(username: str):
     get_user = f"""
         SELECT *
         FROM Users
-        WHERE username = '{username}';
+        WHERE username = ?;
         """
-    user = sqlite.query(get_user, one=True)
+    user = sqlite.query(get_user, (username,), one=True)
 
     if profile_form.is_submitted():
         update_profile = f"""
             UPDATE Users
-            SET education='{profile_form.education.data}', employment='{profile_form.employment.data}',
-                music='{profile_form.music.data}', movie='{profile_form.movie.data}',
-                nationality='{profile_form.nationality.data}', birthday='{profile_form.birthday.data}'
-            WHERE username='{username}';
+            SET education= ?, employment= ?,
+                music= ?, movie= ?,
+                nationality= ?, birthday= ?
+            WHERE username= ?;
             """
-        sqlite.query(update_profile)
+        sqlite.query(update_profile, (
+            profile_form.education.data,
+            profile_form.employment.data,
+            profile_form.music.data,
+            profile_form.movie.data,
+            profile_form.nationality.data,
+            profile_form.birthday.data,
+            username
+        ))
         return redirect(url_for("profile", username=username))
 
     return render_template("profile.html.j2", title="Profile", username=username, user=user, form=profile_form)
