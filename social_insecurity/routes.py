@@ -8,6 +8,7 @@ from pathlib import Path
 
 from flask import current_app as app
 from flask import flash, redirect, render_template, send_from_directory, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from social_insecurity import sqlite
 from social_insecurity.forms import CommentsForm, FriendsForm, IndexForm, PostForm, ProfileForm
@@ -33,7 +34,7 @@ def index():
             FROM Users
             WHERE username = ?;
             """
-        user = sqlite.query(get_user, login_form.username.data, one=True)
+        user = sqlite.query(get_user, params=(login_form.username.data,), one=True)
 
         if user is None:
             flash("Sorry, this user does not exist!", category="warning")
@@ -45,9 +46,14 @@ def index():
     elif register_form.is_submitted() and register_form.submit.data:
         insert_user = f"""
             INSERT INTO Users (username, first_name, last_name, password)
-            VALUES ('{register_form.username.data}', '{register_form.first_name.data}', '{register_form.last_name.data}', '{register_form.password.data}');
+            VALUES (?,?,?,?);
             """
-        sqlite.query(insert_user)
+        sqlite.query(insert_user, (
+            register_form.username.data, 
+            register_form.first_name.data, 
+            register_form.last_name.data, 
+            register_form.password.data
+            ))
         flash("User successfully created!", category="success")
         return redirect(url_for("index"))
 
