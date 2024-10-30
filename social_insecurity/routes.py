@@ -163,23 +163,23 @@ def friends(username: str):
     get_user = f"""
         SELECT *
         FROM Users
-        WHERE username = '{username}';
+        WHERE username = ?;
         """
-    user = sqlite.query(get_user, one=True)
+    user = sqlite.query(get_user, (username,), one=True)
 
     if friends_form.is_submitted():
         get_friend = f"""
             SELECT *
             FROM Users
-            WHERE username = '{friends_form.username.data}';
+            WHERE username = ?;
             """
-        friend = sqlite.query(get_friend, one=True)
+        friend = sqlite.query(get_friend, (friends_form.username.data,), one=True)
         get_friends = f"""
             SELECT f_id
             FROM Friends
-            WHERE u_id = {user["id"]};
+            WHERE u_id = ?;
             """
-        friends = sqlite.query(get_friends)
+        friends = sqlite.query(get_friends, (user["id"],))
 
         if friend is None:
             flash("User does not exist!", category="warning")
@@ -190,17 +190,23 @@ def friends(username: str):
         else:
             insert_friend = f"""
                 INSERT INTO Friends (u_id, f_id)
-                VALUES ({user["id"]}, {friend["id"]});
+                VALUES (?,?);
                 """
-            sqlite.query(insert_friend)
+            sqlite.query(insert_friend, (
+                user["id"],
+                friend["id"]
+            ))
             flash("Friend successfully added!", category="success")
 
     get_friends = f"""
         SELECT *
         FROM Friends AS f JOIN Users as u ON f.f_id = u.id
-        WHERE f.u_id = {user["id"]} AND f.f_id != {user["id"]};
+        WHERE f.u_id = ? AND f.f_id != ?;
         """
-    friends = sqlite.query(get_friends)
+    friends = sqlite.query(get_friends, (
+        user["id"],
+        user["id"]
+    ))
     return render_template("friends.html.j2", title="Friends", username=username, friends=friends, form=friends_form)
 
 
