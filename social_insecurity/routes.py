@@ -38,12 +38,13 @@ def index():
 
         if user is None:
             flash("Sorry, this user does not exist!", category="warning")
-        elif user["password"] != login_form.password.data:
+        elif not check_password_hash(user["password"], login_form.password.data):
             flash("Sorry, wrong password!", category="warning")
-        elif user["password"] == login_form.password.data:
+        elif check_password_hash(user["password"], login_form.password.data):
             return redirect(url_for("stream", username=login_form.username.data))
 
     elif register_form.is_submitted() and register_form.submit.data:
+        hashed_pwd = generate_password_hash(register_form.password.data)
         insert_user = f"""
             INSERT INTO Users (username, first_name, last_name, password)
             VALUES (?,?,?,?);
@@ -52,7 +53,7 @@ def index():
             register_form.username.data, 
             register_form.first_name.data, 
             register_form.last_name.data, 
-            register_form.password.data
+            hashed_pwd
             ))
         flash("User successfully created!", category="success")
         return redirect(url_for("index"))
