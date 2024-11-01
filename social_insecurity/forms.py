@@ -11,7 +11,7 @@ Example:
 
     # Use the form
     form = LoginForm()
-    if form.validate_on_submit() and form.login.submit.data:
+    if login_form.validate_on_submit() and login_form.login.submit.data:
         username = form.username.data
 """
 
@@ -33,7 +33,7 @@ from wtforms import (
 from wtforms.validators import (
     DataRequired,
     Length,
-    Email,
+    
     EqualTo,
     ValidationError,
 )
@@ -59,17 +59,13 @@ class LoginForm(FlaskForm):
 class RegisterForm(FlaskForm):
     """Provides the registration form for the application."""
 
-    first_name = StringField(label="First Name", render_kw={"placeholder": "First Name"},validators=[DataRequired(), Length(min=3, max=25)])
-    last_name = StringField(label="Last Name", render_kw={"placeholder": "Last Name"},validators=[DataRequired(), Length(min=3, max=25)])
+    first_name = StringField(label="First Name", render_kw={"placeholder": "First Name"})
+    last_name = StringField(label="Last Name", render_kw={"placeholder": "Last Name"})
     username = StringField(label="Username", render_kw={"placeholder": "Username"},validators=[DataRequired(), Length(min=3, max=25)])
     password = PasswordField(label="Password", render_kw={"placeholder": "Password"},validators=[DataRequired(), Length(min=6, max=100)])
     confirm_password = PasswordField(label="Confirm Password", render_kw={"placeholder": "Confirm Password"},validators=[DataRequired(), EqualTo('password', message='Passwords must match')])
     submit = SubmitField(label="Sign Up")
     
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user:
-            raise ValidationError('Username already exists. Please choose a different one.')
 
 class IndexForm(FlaskForm):
     """Provides the composite form for the index page."""

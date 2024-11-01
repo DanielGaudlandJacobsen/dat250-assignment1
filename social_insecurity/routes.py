@@ -13,6 +13,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from social_insecurity import sqlite
 from social_insecurity.forms import CommentsForm, FriendsForm, IndexForm, PostForm, ProfileForm
 
+from flask import Flask
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/index", methods=["GET", "POST"])
@@ -249,14 +250,14 @@ def profile(username: str):
     return render_template("profile.html.j2", title="Profile", username=username, user=user, form=profile_form)
 
 
-#@app.route("/uploads/<string:filename>")
-#def uploads(filename):
-#    """Provides an endpoint for serving uploaded files."""
-#    return send_from_directory(Path(app.instance_path) / app.config["UPLOADS_FOLDER_PATH"], filename)
+@app.route("/uploads/<string:filename>")
+def uploads(filename):
+    """Provides an endpoint for serving uploaded files."""
+    return send_from_directory(Path(app.instance_path) / app.config["UPLOADS_FOLDER_PATH"], filename)
 
 
 
-
+"""
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
@@ -279,3 +280,4 @@ def upload_file():
             flash('Allowed file types are png, jpg, jpeg, gif, bmp, tiff')
             return redirect(request.url)
     return
+    """
