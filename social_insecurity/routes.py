@@ -40,7 +40,6 @@ class RequestForm(FlaskForm):
 @login_required
 def handle_friend_request():
     form = RequestForm()
-
     if form.validate_on_submit():
         request_id = form.request_id.data
         action = form.action.data
@@ -79,7 +78,6 @@ def handle_friend_request():
         print(f"Form data: {request.form}")
         print(f"Form errors: {form.errors}")
         flash("Invalid form submission.", category="danger")
-
     return redirect(url_for("friends"))
 
 def allowed_file(filename):

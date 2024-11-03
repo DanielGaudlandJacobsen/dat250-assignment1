@@ -50,42 +50,29 @@
         <div class="col-sm-12 col-lg-6">
             <div class="card mb-3">
                 <div class="card-body">
-                    <h4 class="card-title">Test Pending Friend Requests</h4>
+                    <h4 class="card-title">Friend Requests</h4>
                     <ul class="list-group mt-4">
                         {% if friend_requests %}
-                            {% for request in friend_requests %}
-                                <li class="list-group-item">
-                                    {{ request.username }}
-
-                                    <form method="POST" action="{{ url_for('handle_friend_request') }}" class="d-inline">
-                                        {{ request_form.hidden_tag() }}
-                                        {{ request_form.request_id(value=request.id) }}
-                                        {{ request_form.action(value='accept') }}
-                                        <button type="submit" class="btn btn-success btn-sm">Accept</button>
-                                    </form>
-
-                                    <!-- Decline Form -->
-                                    <form method="POST" action="{{ url_for('handle_friend_request') }}" class="d-inline">
-                                        {{ request_form.hidden_tag() }}
-                                        {{ request_form.request_id(value=request.id) }}
-                                        {{ request_form.action(value='decline') }}
-                                        <button type="submit" class="btn btn-danger btn-sm">Decline</button>
-                                    </form>
-                                    <form method="POST" action="{{ url_for('handle_friend_request') }}">
-                                        {{ request_form.hidden_tag() }}
-                                        <input type="hidden" name="request_id" value="{{ request_form.request_id }}">
-                                        <input type="hidden" name="action" value="accept">
-                                        <button type="submit">Accept</button>
-                                    </form>
-
-                                    <form method="POST" action="{{ url_for('handle_friend_request') }}">
-                                        {{ request_form.hidden_tag() }}
-                                        <input type="hidden" name="request_id" value="{{ request_form.request_id }}">
-                                        <input type="hidden" name="action" value="decline">
-                                        <button type="submit">Decline</button>
-                                    </form>
-                                </li>
-                            {% endfor %}
+                        {% for request in friend_requests %}
+                        <li class="list-group-item">
+                            {{ request.username }}
+                    
+                            <form method="POST" action="{{ url_for('handle_friend_request') }}" class="d-inline">
+                                {{ request_form.csrf_token }}
+                                {{ request_form.request_id(value=request.id) }}
+                                {{ request_form.action(value='accept') }}
+                                <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                            </form>
+                    
+                            <!-- Decline Form -->
+                            <form method="POST" action="{{ url_for('handle_friend_request') }}" class="d-inline">
+                                {{ request_form.csrf_token }}
+                                {{ request_form.request_id(value=request.id) }}
+                                {{ request_form.action(value='decline') }}
+                                <button type="submit" class="btn btn-danger btn-sm">Decline</button>
+                            </form>
+                        </li>
+                    {% endfor %}
                         {% else %}
                             <li class="list-group-item">No pending friend requests.</li>
                         {% endif %}
