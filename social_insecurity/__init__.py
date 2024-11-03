@@ -1,30 +1,34 @@
-"""Provides the social_insecurity package for the Social Insecurity application.
-
-The package contains the Flask application factory.
-"""
+# social_insecurity/__init__.py
 
 from pathlib import Path
 from shutil import rmtree
 from typing import cast
 
 from flask import Flask, current_app
+from flask_login import LoginManager  # Fjernet kommentar
+from flask_bcrypt import Bcrypt  # Fjernet kommentar
+from flask_wtf.csrf import CSRFProtect  # Fjernet kommentar
+from flask_talisman import Talisman
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from social_insecurity.config import Config
 from social_insecurity.database import SQLite3
+from social_insecurity.models import User  # Sørg for at du har en models.py med User-klassen
 
-# from flask_login import LoginManager
-# from flask_bcrypt import Bcrypt
-# from flask_wtf.csrf import CSRFProtect
-
+# Initialiser utvidelser
 sqlite = SQLite3()
-# TODO: Handle login management better, maybe with flask_login?
-# login = LoginManager()
-# TODO: The passwords are stored in plaintext, this is not secure at all. I should probably use bcrypt or something
-# bcrypt = Bcrypt()
-# TODO: The CSRF protection is not working, I should probably fix that
-# csrf = CSRFProtect()
-
-
+login = LoginManager()
+bcrypt = Bcrypt()
+csrf = CSRFProtect()
+limiter = Limiter(key_func=get_remote_address, default_limits=["50 per day", "30 per hour"])
+ 
+@login.user_loader
+def load_user(user_id):
+    user_row = sqlite.get_user_by_id(int(user_id))
+    if user_row:
+        return User(id=user_row["id"], username=user_row["username"], password=user_row["password"])
+    return None
 def create_app(test_config=None) -> Flask:
     """Create and configure the Flask application."""
     app = Flask(__name__)
@@ -32,10 +36,23 @@ def create_app(test_config=None) -> Flask:
     if test_config:
         app.config.from_object(test_config)
 
+    # Initialiser utvidelsene
     sqlite.init_app(app, schema="schema.sql")
-    # login.init_app(app)
-    # bcrypt.init_app(app)
-    # csrf.init_app(app)
+    login.init_app(app)
+    bcrypt.init_app(app)
+    csrf.init_app(app)
+    limiter.init_app(app)
+
+    # Oppsett av Flask-Talisman for sikkerhetshoder
+    csp = {
+        "default-src": [
+            "'self'",
+            "https://stackpath.bootstrapcdn.com",
+            "https://maxcdn.bootstrapcdn.com",
+            "https://cdn.jsdelivr.net",
+        ]
+    }
+    talisman = Talisman(app, content_security_policy=csp, frame_options="DENY")
 
     with app.app_context():
         create_uploads_folder(app)

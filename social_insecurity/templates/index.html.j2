@@ -1,48 +1,82 @@
+<!-- templates/index.html.j2 -->
+
 {% extends "base.html.j2" %}
+
 {% block content %}
-  <!-- Jumbotron -->
-  <div class="bg-light p-5 rounded mx-3 mb-4">
-    <div class="container">
-      <h1 class="display-4">Social Insecurity</h1>
-      <p class="lead">The social network for the insecure™</p>
-    </div>
+<div class="bg-light p-5 rounded mx-3 mb-4">
+  <div class="container">
+    <h1 class="display-4">Social Insecurity</h1>
+    <p class="lead">The social network for the insecure™</p>
   </div>
-  <div class="container-fluid">
-    <div class="row">
-      <!-- Login Form Card -->
-      <div class="col-sm-12 col-lg-6">
-        <div class="card text-center mb-3">
-          <div class="card-header">Sign In</div>
-          <div class="card-body">
-            <h5 class="card-title mb-3">Access an existing profile</h5>
-            <form action="" method="post" novalidate>
-              <div class="mb-3">{{ form.login.username(class_="form-control") }}</div>
-              <div class="mb-3">{{ form.login.password(class_="form-control") }}</div>
-              <div class="mb-3 form-check form-check-inline">
-                {{ form.login.remember_me(class_="form-check-input") }} {{ form.login.remember_me.label(class_="form-check-label") }}
-              </div>
-              <div>{{ form.login.submit(class_="btn btn-primary") }}</div>
-            </form>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-12 col-lg-6">
+      <div class="card text-center mb-3">
+      <!-- Login Form -->
+      <div class="card-header">Sign In</div>
+      <div class="card-body">
+        <h5 class="card-title mb-3">Access an existing profile</h5>
+
+      <form method="POST" action="{{ url_for('index') }}?action=login" novalidate>  <!-- Added action parameter -->
+        {{ form.login.hidden_tag() }}
+        <div class="mb-3">
+          {{ form.login.username.label(class="form-label") }}
+          {{ form.login.username(class="form-control") }}
+        </div>
+        <div class="mb-3">
+          {{ form.login.password.label(class="form-label") }}
+          {{ form.login.password(class="form-control") }}
+        </div>
+        <div class="form-check mb-3">
+          {{ form.login.remember_me(class="form-check-input") }}
+          {{ form.login.remember_me.label(class="form-check-label") }}
+        </div>
+        <div>
+          {{ form.login.submit(class="btn btn-primary") }}
+        </div>
+      </form>
           </div>
         </div>
       </div>
-      <!-- Register Form Card -->
+      <hr>
+
+      <!-- Register Form -->
       <div class="col-sm-12 col-lg-6">
         <div class="card text-center mb-3">
           <div class="card-header">Register</div>
           <div class="card-body">
             <h5 class="card-title mb-3">Create a new profile</h5>
-            <form action="" method="post" novalidate>
-              <div class="mb-3">{{ form.register.first_name(class_="form-control") }}</div>
-              <div class="mb-3">{{ form.register.last_name(class_="form-control") }}</div>
-              <div class="mb-3">{{ form.register.username(class_="form-control") }}</div>
-              <div class="mb-3">{{ form.register.password(class_="form-control") }}</div>
-              <div class="mb-3">{{ form.register.confirm_password(class_="form-control") }}</div>
-              <div>{{ form.register.submit(class_="btn btn-primary") }}</div>
-            </form>
-          </div>
+
+      <form method="POST" action="{{ url_for('index') }}?action=register" novalidate>  <!-- Added action parameter -->
+        {{ form.register.hidden_tag() }}
+        <div class="mb-3">
+          {{ form.register.first_name.label(class="form-label") }}
+          {{ form.register.first_name(class="form-control") }}
         </div>
-      </div>
+        <div class="mb-3">
+          {{ form.register.last_name.label(class="form-label") }}
+          {{ form.register.last_name(class="form-control") }}
+        </div>
+        <div class="mb-3">
+          {{ form.register.username.label(class="form-label") }}
+          {{ form.register.username(class="form-control") }}
+        </div>
+        <div class="mb-3">
+          {{ form.register.password.label(class="form-label") }}
+          {{ form.register.password(class="form-control") }}
+        </div>
+        <div class="mb-3">
+          {{ form.register.confirm_password.label(class="form-label") }}
+          {{ form.register.confirm_password(class="form-control") }}
+        </div>
+        <div>
+          {{ form.register.submit(class="btn btn-success") }}
+        </div>
+      </form>
     </div>
   </div>
+</div>
+</div>
+</div>
 {% endblock content %}

@@ -1,5 +1,6 @@
 {% extends "base.html.j2" %}
 {% block content %}
+
   <!-- Post creation card -->
   <div class="container-flex justify-content-center">
     <div class="row justify-content-center">
@@ -7,10 +8,22 @@
         <div class="card mb-3">
           <div class="card-body">
             <h4 class="card-title mb-3">Share something</h4>
-            <form action="" method="post" novalidate enctype="multipart/form-data">
-              <div class="mb-3">{{ form.content(class_="form-control") }}</div>
-              <div class="mb-3">{{ form.image(class_="form-control") }}</div>
-              <div>{{ form.submit(class_="btn btn-primary") }}</div>
+
+            <form method="POST" action="{{ url_for('stream') }}" enctype="multipart/form-data"">
+              {{ form.hidden_tag() }} <!-- This includes the CSRF token -->
+            <div class="mb-3">
+
+              <div class="mb-3">
+                {{ form.content.label(class="form-label") }}
+                {{ form.content(class="form-control") }}
+              </div>
+              <div class="mb-3">
+                {{ form.image.label(class="form-label") }}
+                {{ form.image(class="form-control") }}
+              </div>
+              <div>{{ form.submit(class="btn btn-primary") }}</div>
+
+
             </form>
           </div>
         </div>
@@ -30,7 +43,7 @@
             <div class="card-body">
               <p class="card-text">{{ post.content }}</p>
               {% if post.image %}<img src={{ url_for('uploads', filename=post.image) }} alt={{ post.image }} class="img-fluid mb-3">{% endif %}
-              <a href={{ url_for('comments', username=username, post_id=post.id) }}><span class="fa fa-comment me-1" aria-hidden="true"></span>Comments ({{ post.cc }})</a>
+              <a href={{ url_for('comments', username=post.username, post_id=post.id) }}><span class="fa fa-comment me-1" aria-hidden="true"></span>Comments ({{ post.cc }})</a>
             </div>
           </div>
         </div>

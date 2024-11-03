@@ -1,43 +1,17 @@
-"""Provides a SQLite3 database extension for Flask.
-
-This extension provides a simple interface to the SQLite3 database.
-
-Example:
-    from flask import Flask
-    from social_insecurity.database import SQLite3
-
-    app = Flask(__name__)
-    db = SQLite3(app)
-"""
+# social_insecurity/database.py
 
 from __future__ import annotations
 
 import sqlite3
 from os import PathLike
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import Any, Optional  # Removed unused import 'cast'
 
 from flask import Flask, current_app, g
 
 
 class SQLite3:
-    """Provides a SQLite3 database extension for Flask.
-
-    This class provides a simple interface to the SQLite3 database.
-    It also initializes the database if it does not exist yet.
-
-    Example:
-        from flask import Flask
-        from social_insecurity.database import SQLite3
-
-        app = Flask(__name__)
-        db = SQLite3(app)
-
-        # Use the database
-        # db.query("SELECT * FROM Users;")
-        # db.query("SELECT * FROM Users WHERE id = 1;", one=True)
-        # db.query("INSERT INTO Users (name, email) VALUES ('John', 'test@test.net');")
-    """
+    """Provides a SQLite3 database extension for Flask."""
 
     def __init__(
         self,
@@ -46,14 +20,7 @@ class SQLite3:
         path: Optional[PathLike | str] = None,
         schema: Optional[PathLike | str] = None,
     ) -> None:
-        """Initializes the extension.
-
-        params:
-            app: The Flask application to initialize the extension with.
-            path (optional): The path to the database file. Is relative to the instance folder.
-            schema (optional): The path to the schema file. Is relative to the application root folder.
-
-        """
+        """Initializes the extension."""
         if app is not None:
             self.init_app(app, path=path, schema=schema)
 
@@ -64,14 +31,7 @@ class SQLite3:
         path: Optional[PathLike | str] = None,
         schema: Optional[PathLike | str] = None,
     ) -> None:
-        """Initializes the extension.
-
-        params:
-            app: The Flask application to initialize the extension with.
-            path (optional): The path to the database file. Is relative to the instance folder.
-            schema (optional): The path to the schema file. Is relative to the application root folder.
-
-        """
+        """Initializes the extension."""
         if not hasattr(app, "extensions"):
             app.extensions = {}
 
@@ -92,11 +52,10 @@ class SQLite3:
             raise ValueError("No database path provided to SQLite3 extension")
 
         if not self._path.exists():
-            self._path.parent.mkdir(parents=True)
-
-        if schema and not self._path.exists():
-            with app.app_context():
-                self._init_database(schema)
+            self._path.parent.mkdir(parents=True, exist_ok=True)
+            if schema:
+                with app.app_context():
+                    self._init_database(schema)
 
         app.teardown_appcontext(self._close_connection)
 
@@ -105,28 +64,28 @@ class SQLite3:
         """Returns the connection to the SQLite3 database."""
         conn = getattr(g, "flask_sqlite3_connection", None)
         if conn is None:
-            conn = g.flask_sqlite3_connection = sqlite3.connect(self._path)
+            conn = sqlite3.connect(self._path)
             conn.row_factory = sqlite3.Row
+            g.flask_sqlite3_connection = conn  # Fixed assignment to 'conn'
         return conn
 
     def query(self, query: str, params: tuple = (), one: bool = False) -> Any:
-        """Queries the database and returns the result.'
-
-        params:
-            query: The SQL query to execute.
-            one: Whether to return a single row or a list of rows.
-            args: Additional arguments to pass to the query.
-
-        returns: A single row, a list of rows or None.
-
-        """
+        """Queries the database and returns the result."""
         cursor = self.connection.execute(query, params)
         response = cursor.fetchone() if one else cursor.fetchall()
         cursor.close()
         self.connection.commit()
         return response
 
-    # TODO: Add more specific query methods to simplify code
+    def get_user_by_id(self, user_id: int) -> Optional[sqlite3.Row]:
+        """Fetches a user from the database by their ID."""
+        query = "SELECT * FROM Users WHERE id = ?;"
+        return self.query(query, (user_id,), one=True)
+
+    def get_user_by_username(self, username: str) -> Optional[sqlite3.Row]:
+        """Fetches a user from the database by their username."""
+        query = "SELECT * FROM Users WHERE username = ?;"
+        return self.query(query, (username,), one=True)
 
     def _init_database(self, schema: PathLike | str) -> None:
         """Initializes the database with the supplied schema if it does not exist yet."""
@@ -136,6 +95,7 @@ class SQLite3:
 
     def _close_connection(self, exception: Optional[BaseException] = None) -> None:
         """Closes the connection to the database."""
-        conn = cast(sqlite3.Connection, getattr(g, "flask_sqlite3_connection", None))
+        conn = getattr(g, "flask_sqlite3_connection", None)
         if conn is not None:
             conn.close()
+            g.flask_sqlite3_connection = None  # Ensure the connection is removed from 'g'

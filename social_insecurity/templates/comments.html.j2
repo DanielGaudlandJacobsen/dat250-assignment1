@@ -22,13 +22,22 @@
                 {% endif %}
               </div>
             </div>
+
             <!-- Comment creation card cont -->
-            <form action="" method="post" novalidate>
-              <div class="mb-3">{{ form.comment(class_="form-control") }}</div>
-              <div>{{ form.submit(class_="btn btn-primary") }}</div>
+            <form method="POST" action="{{ url_for('comments', username=username, post_id=post.id) }}">
+              {{ form.hidden_tag() }} <!-- Include CSRF token -->
+              <div class="mb-3">
+                {{ form.comment.label(class="form-label") }}
+                {{ form.comment(class="form-control") }}
+              </div>
+              <div>
+                {{ form.submit(class="btn btn-primary") }}
+              </div>
             </form>
           </div>
         </div>
+
+
         <!-- Comment feed cards -->
         {% for comment in comments %}
           <div class="card mb-3">

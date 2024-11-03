@@ -1,38 +1,98 @@
+<!-- social_insecurity/templates/test_friends.html.j2 -->
+
 {% extends "base.html.j2" %}
 {% block content %}
-  <div class="container-flex justify-content-center">
+<h2>Test Friends Template</h2>
+<div class="container-flex justify-content-center">
     <div class="row justify-content-center">
-      <!-- Add friend card -->
-      <div class="col-sm-12 col-lg-6">
-        <div class="card mb-3">
-          <div class="card-body">
-            <h4 class="card-title mb-3">Add a new friend</h4>
-            <form action="" method="post" novalidate>
-              <div class="mb-3">{{ form.username(class_="form-control") }}</div>
-              <div>{{ form.submit(class="btn btn-primary") }}</div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row justify-content-center">
-      <!-- Your friends card -->
-      {% if friends %}
+        <!-- Test Add friend card -->
         <div class="col-sm-12 col-lg-6">
-          <div class="card">
-            <div class="card-body">
-              <h4 class="card-title">Your friends</h4>
-              <ul class="list-group list-group-flush">
-                {% for friend in friends %}
-                  <li class="list-group-item">
-                    <a href={{ url_for('profile', username=friend.username) }}>{{ friend.username }}</a>
-                  </li>
-                {% endfor %}
-              </ul>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Test Add a new friend</h4>
+                    <form method="POST" action="{{ url_for('friends') }}">
+                        {{ form.hidden_tag() }} <!-- Include the CSRF token -->
+                        <div class="mb-3">
+                            {{ form.username.label(class="form-label") }}
+                            {{ form.username(class="form-control") }}
+                        </div>
+                        <div>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
             </div>
-          </div>
         </div>
-      {% endif %}
     </div>
-  </div>
+
+    <div class="row justify-content-center">
+        <!-- Test Your friends card -->
+        <div class="col-sm-12 col-lg-6">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4 class="card-title">Test Your Friends</h4>
+                    <ul class="list-group list-group-flush">
+                        {% if friends %}
+                            {% for friend in friends %}
+                                <li class="list-group-item">
+                                    <a href="{{ url_for('profile', username=friend.username) }}">{{ friend.username }}</a>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="list-group-item">You have no friends yet.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Pending friend requests -->
+        <div class="col-sm-12 col-lg-6">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4 class="card-title">Test Pending Friend Requests</h4>
+                    <ul class="list-group mt-4">
+                        {% if friend_requests %}
+                            {% for request in friend_requests %}
+                                <li class="list-group-item">
+                                    {{ request.username }}
+
+                                    <form method="POST" action="{{ url_for('handle_friend_request') }}" class="d-inline">
+                                        {{ request_form.hidden_tag() }}
+                                        {{ request_form.request_id(value=request.id) }}
+                                        {{ request_form.action(value='accept') }}
+                                        <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                                    </form>
+
+                                    <!-- Decline Form -->
+                                    <form method="POST" action="{{ url_for('handle_friend_request') }}" class="d-inline">
+                                        {{ request_form.hidden_tag() }}
+                                        {{ request_form.request_id(value=request.id) }}
+                                        {{ request_form.action(value='decline') }}
+                                        <button type="submit" class="btn btn-danger btn-sm">Decline</button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('handle_friend_request') }}">
+                                        {{ request_form.hidden_tag() }}
+                                        <input type="hidden" name="request_id" value="{{ request_form.request_id }}">
+                                        <input type="hidden" name="action" value="accept">
+                                        <button type="submit">Accept</button>
+                                    </form>
+
+                                    <form method="POST" action="{{ url_for('handle_friend_request') }}">
+                                        {{ request_form.hidden_tag() }}
+                                        <input type="hidden" name="request_id" value="{{ request_form.request_id }}">
+                                        <input type="hidden" name="action" value="decline">
+                                        <button type="submit">Decline</button>
+                                    </form>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="list-group-item">No pending friend requests.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content %}

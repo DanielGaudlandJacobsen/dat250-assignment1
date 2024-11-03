@@ -17,20 +17,13 @@ import os
 
 
 class Config:
-    SECRET_KEY = os.environ.get("SECRET_KEY") or "secret"  # TODO: Use this with wtforms
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "din_hemmelige_nøkkel"
     SQLITE3_DATABASE_PATH = "sqlite3.db"  # Path relative to the Flask instance folder
     UPLOADS_FOLDER_PATH = "uploads"  # Path relative to the Flask instance folder
-    ALLOWED_EXTENSIONS = {}  # TODO: Might use this at some point, probably don't want people to upload any file type
-    WTF_CSRF_ENABLED = False  # TODO: I should probably implement this wtforms feature, but it's not a priority
+    ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "bmp", "tiff"}  # Tillatte filtyper for opplasting
+    WTF_CSRF_ENABLED = True  # Aktivert CSRF beskyttelse
 
-
-# Ekstra sikkerhet (valgfritt)
-# Flask-Talisman kan brukes for å implementere HTTPS og ytterligere sikkerhetsoverskrifter
-# EXEMPEL:
-# TALISMAN_CONFIG = {
-#     'content_security_policy': {
-#         'default-src': '\'self\'',
-#         'img-src': '*',
-#         # Legg til andre policyer etter behov
-#     }
-# }
+    # Sikre sesjonskapsler
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Strict"
+    SESSION_COOKIE_SECURE = True
