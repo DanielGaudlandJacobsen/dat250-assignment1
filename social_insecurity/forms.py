@@ -75,12 +75,12 @@ class RegisterForm(FlaskForm):
     first_name = StringField(
         label="First Name",
         render_kw={"placeholder": "First Name"},
-        validators=[sanitize_input]
+        validators=[DataRequired(), sanitize_input]
     )
     last_name = StringField(
         label="Last Name",
         render_kw={"placeholder": "Last Name"},
-        validators=[sanitize_input]
+        validators=[DataRequired(), sanitize_input]
     )
     username = StringField(
         label="Username",
