@@ -14,7 +14,7 @@ Example:
     if login_form.validate_on_submit() and login_form.login.submit.data:
         username = form.username.data
 """
-
+import re
 from datetime import datetime
 from typing import cast
 
@@ -42,7 +42,14 @@ from wtforms.validators import (
 # TODO: Add validation, maybe use wtforms.validators??
 
 # TODO: There was some important security feature that wtforms provides, but I don't remember what; implement it
-
+def is_strong_password(form, field):
+    password = field.data
+    if (len(password) < 8 or
+        not re.search(r"[A-Z]", password) or
+        not re.search(r"[a-z]", password) or
+        not re.search(r"[0-9]", password) or
+        not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password)):
+        raise ValidationError('Password must be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and special characters.')
 
 class LoginForm(FlaskForm):
     """Provides the login form for the application."""
@@ -51,7 +58,7 @@ class LoginForm(FlaskForm):
         label="Username", render_kw={"placeholder": "Username"}, validators=[DataRequired(), Length(min=3, max=25)]
     )
     password = PasswordField(
-        label="Password", render_kw={"placeholder": "Password"}, validators=[DataRequired(), Length(min=6, max=100)]
+        label="Password", render_kw={"placeholder": "Password"}, validators=[DataRequired(),is_strong_password]
     )
     remember_me = BooleanField(
         label="Remember me"

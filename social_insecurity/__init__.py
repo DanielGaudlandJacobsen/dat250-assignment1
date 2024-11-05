@@ -21,8 +21,8 @@ sqlite = SQLite3()
 login = LoginManager()
 bcrypt = Bcrypt()
 csrf = CSRFProtect()
-limiter = Limiter(key_func=get_remote_address, default_limits=["50 per day", "30 per hour"])
- 
+limiter = Limiter(key_func=get_remote_address, default_limits=["50 per day", "20 per hour"])
+
 @login.user_loader
 def load_user(user_id):
     user_row = sqlite.get_user_by_id(int(user_id))
@@ -63,7 +63,7 @@ def create_app(test_config=None) -> Flask:
         instance_path = Path(current_app.instance_path)
         if instance_path.exists():
             rmtree(instance_path)
-
+    
     with app.app_context():
         import social_insecurity.routes  # noqa: E402,F401
 

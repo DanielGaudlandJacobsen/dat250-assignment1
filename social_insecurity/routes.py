@@ -28,6 +28,7 @@ from wtforms import HiddenField, SubmitField
 from flask_wtf import FlaskForm
 from flask_wtf.csrf import CSRFProtect
 from wtforms.validators import DataRequired
+from flask_limiter.errors import RateLimitExceeded
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}  # Defined allowed file extensions
 
 class RequestForm(FlaskForm):
@@ -120,22 +121,44 @@ def index():
             flash("Invalid username or password.", category="danger")
 
     elif register_form.validate_on_submit() and register_form.submit.data:
-        hashed_pwd = generate_password_hash(register_form.password.data)
-        insert_user = """
-            INSERT INTO Users (username, first_name, last_name, password)
-            VALUES (?, ?, ?, ?);
-            """
-        sqlite.query(
-            insert_user,
-            (
-                register_form.username.data,
-                register_form.first_name.data,
-                register_form.last_name.data,
-                hashed_pwd,
-            ),
-        )
-        flash("User successfully created!", category="success")
-        return redirect(url_for("index"))
+        if sqlite.get_user_by_username(register_form.username.data):
+            flash("Username already taken.", category="danger")
+            return redirect(url_for("index"))
+        elif register_form.password.data != register_form.confirm_password.data:
+            flash("Passwords must match.", category="danger")
+            return redirect(url_for("index"))
+        elif len(register_form.password.data) < 8:
+            flash("Password must be at least 8 characters long.", category="danger")
+            return redirect(url_for("index"))
+        elif not any(char.isdigit() for char in register_form.password.data):
+            flash("Password must contain at least one digit.", category="danger")
+            return redirect(url_for("index"))
+        elif not any(char.isupper() for char in register_form.password.data):
+            flash("Password must contain at least one uppercase letter.", category="danger")
+            return redirect(url_for("index"))
+        elif not any(char.islower() for char in register_form.password.data):
+            flash("Password must contain at least one lowercase letter.", category="danger")
+            return redirect(url_for("index"))
+        elif not any(char in "!@#$%^&*(),.?\":{}|<>" for char in register_form.password.data):
+            flash("Password must contain at least one special character.", category="danger")
+            return redirect(url_for("index"))
+        else:
+            hashed_pwd = generate_password_hash(register_form.password.data)
+            insert_user = """
+                INSERT INTO Users (username, first_name, last_name, password)
+                VALUES (?, ?, ?, ?);
+                """
+            sqlite.query(
+                insert_user,
+                (
+                    register_form.username.data,
+                    register_form.first_name.data,
+                    register_form.last_name.data,
+                    hashed_pwd,
+                ),
+            )
+            flash("User successfully created!", category="success")
+            return redirect(url_for("index"))
 
     return render_template("index.html.j2", title="Welcome", form=form)
 
