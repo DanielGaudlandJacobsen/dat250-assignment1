@@ -44,7 +44,7 @@ import bleach
 def sanitize_input(form, field):
     # Clean the input data by stripping disallowed tags and attributes
     field.data = bleach.clean(
-        field.data,
+        field.data or "",
         tags=[],  # Disallow all tags
         attributes={},  # Disallow all attributes
         strip=True  # Remove disallowed tags completely
