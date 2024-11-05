@@ -56,12 +56,12 @@ class LoginForm(FlaskForm):
     username = StringField(
         label="Username",
         render_kw={"placeholder": "Username"},
-        validators=[DataRequired(), Length(min=3, max=25), sanitize_input]
+        validators=[DataRequired(), Length(min=3, max=25, message="Username must be at least 3 characters long"), sanitize_input]
     )
     password = PasswordField(
         label="Password",
         render_kw={"placeholder": "Password"},
-        validators=[DataRequired(), Length(min=6, max=100), sanitize_input]
+        validators=[DataRequired(), Length(min=6, max=100, message="Password must be at least 6 characters long"), sanitize_input]
     )
     remember_me = BooleanField(
         label="Remember me"
@@ -75,22 +75,22 @@ class RegisterForm(FlaskForm):
     first_name = StringField(
         label="First Name",
         render_kw={"placeholder": "First Name"},
-        validators=[DataRequired(), sanitize_input]
+        validators=[sanitize_input]
     )
     last_name = StringField(
         label="Last Name",
         render_kw={"placeholder": "Last Name"},
-        validators=[DataRequired(), sanitize_input]
+        validators=[sanitize_input]
     )
     username = StringField(
         label="Username",
         render_kw={"placeholder": "Username"},
-        validators=[DataRequired(), Length(min=3, max=25), sanitize_input]
+        validators=[DataRequired(), Length(min=3, max=25, message="Username must be at least 3 characters long"), sanitize_input]
     )
     password = PasswordField(
         label="Password",
         render_kw={"placeholder": "Password"},
-        validators=[DataRequired(), Length(min=6, max=100), sanitize_input]
+        validators=[DataRequired(), Length(min=6, max=100, message="Password must be at least 6 characters long"), sanitize_input]
     )
     confirm_password = PasswordField(
         label="Confirm Password",
