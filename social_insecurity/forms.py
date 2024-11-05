@@ -57,7 +57,7 @@ def is_strong_password(form, field):
 def sanitize_input(form, field):
     # Clean the input data by stripping disallowed tags and attributes
     field.data = bleach.clean(
-        field.data,
+        field.data or "",
         tags=[],  # Disallow all tags
         attributes={},  # Disallow all attributes
         strip=True  # Remove disallowed tags completely
@@ -70,7 +70,7 @@ class LoginForm(FlaskForm):
     username = StringField(
         label="Username",
         render_kw={"placeholder": "Username"},
-        validators=[DataRequired(), Length(min=3, max=25), sanitize_input]
+        validators=[DataRequired(), Length(min=3, max=25, message="Username must be at least 3 characters long"), sanitize_input]
     )
     password = PasswordField(
 <<<<<<< HEAD
@@ -78,8 +78,12 @@ class LoginForm(FlaskForm):
 =======
         label="Password",
         render_kw={"placeholder": "Password"},
+<<<<<<< HEAD
         validators=[DataRequired(), Length(min=6, max=100), sanitize_input]
 >>>>>>> 157c0adfe91242db4c240a47b93ddf2d4fe6e683
+=======
+        validators=[DataRequired(), Length(min=6, max=100, message="Password must be at least 6 characters long"), sanitize_input]
+>>>>>>> 1f86e746a5b14b0ab61d0cf45f4f25097fd52724
     )
     remember_me = BooleanField(
         label="Remember me"
@@ -93,22 +97,22 @@ class RegisterForm(FlaskForm):
     first_name = StringField(
         label="First Name",
         render_kw={"placeholder": "First Name"},
-        validators=[DataRequired(), sanitize_input]
+        validators=[sanitize_input]
     )
     last_name = StringField(
         label="Last Name",
         render_kw={"placeholder": "Last Name"},
-        validators=[DataRequired(), sanitize_input]
+        validators=[sanitize_input]
     )
     username = StringField(
         label="Username",
         render_kw={"placeholder": "Username"},
-        validators=[DataRequired(), Length(min=3, max=25), sanitize_input]
+        validators=[DataRequired(), Length(min=3, max=25, message="Username must be at least 3 characters long"), sanitize_input]
     )
     password = PasswordField(
         label="Password",
         render_kw={"placeholder": "Password"},
-        validators=[DataRequired(), Length(min=6, max=100), sanitize_input]
+        validators=[DataRequired(), Length(min=6, max=100, message="Password must be at least 6 characters long"), sanitize_input]
     )
     confirm_password = PasswordField(
         label="Confirm Password",

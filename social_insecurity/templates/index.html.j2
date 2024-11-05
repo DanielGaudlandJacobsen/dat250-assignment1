@@ -23,10 +23,24 @@
         <div class="mb-3">
           {{ form.login.username.label(class="form-label") }}
           {{ form.login.username(class="form-control") }}
+          {% if form.login.username.errors %}
+            <div class="text-danger">
+                {% for error in form.login.username.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+          {% endif %}
         </div>
         <div class="mb-3">
           {{ form.login.password.label(class="form-label") }}
           {{ form.login.password(class="form-control") }}
+          {% if form.login.password.errors %}
+            <div class="text-danger">
+                {% for error in form.login.password.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+          {% endif %}
         </div>
         <div class="form-check mb-3">
           {{ form.login.remember_me(class="form-check-input") }}
@@ -61,14 +75,35 @@
         <div class="mb-3">
           {{ form.register.username.label(class="form-label") }}
           {{ form.register.username(class="form-control") }}
+          {% if form.register.username.errors %}
+            <div class="text-danger">
+                {% for error in form.register.username.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+          {% endif %}
         </div>
         <div class="mb-3">
           {{ form.register.password.label(class="form-label") }}
           {{ form.register.password(class="form-control") }}
+          {% if form.register.password.errors %}
+            <div class="text-danger">
+                {% for error in form.register.password.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+          {% endif %}
         </div>
         <div class="mb-3">
           {{ form.register.confirm_password.label(class="form-label") }}
           {{ form.register.confirm_password(class="form-control") }}
+          {% if form.register.confirm_password.errors %}
+            <div class="text-danger">
+                {% for error in form.register.confirm_password.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+          {% endif %}
         </div>
         <div>
           {{ form.register.submit(class="btn btn-success") }}
